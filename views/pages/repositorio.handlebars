@@ -1,5 +1,9 @@
 {{#each dirs}}
 <ul>
-    <li><a href="/files/{{this.url}}" target="_blank">{{this.src}}</a></li>
+    {{#if this.isPdf}}
+    <li>{{this.src}} {{#if this.url}}- <a href="/api/files/{{this.url}}" target="_blank">api</a> <a href="/files/{{this.url}}" target="_blank">arquivo</a>{{/if}}</li>
+    {{else}}
+    <li><a href="/files/{{this.url}}">{{this.src}}</a></li>
+    {{/if}}
 </ul>
 {{/each}}

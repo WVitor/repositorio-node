@@ -4,9 +4,14 @@ const app = express();
 const fs = require('fs');
 const pdf = require('pdf-parse')
 
-interface ObjetctDirs{
+interface ObjectDirs{
     src: string,
-    url: string
+    url: string,
+    isPdf: boolean
+}
+
+if(!fs.existsSync('./files')){
+    fs.mkdirSync('./files')
 }
 
 app.engine("handlebars", require("express-handlebars").engine());
@@ -28,27 +33,21 @@ app.get("/files/*", async(req: Request, res: Response) => {
         fs.createReadStream(`./files/${src}`).pipe(res);
         return
     }else{
-        const dirs : ObjetctDirs[] = []
+        const dirs : ObjectDirs[] = []
         fs.readdirSync(`./files/${src}`).forEach((file: string)=>{
-            dirs.push({src: file, url: `${src}/${file}`})
+            dirs.push({src: file, url: `${src}/${file}`, isPdf: file.endsWith('.pdf')})
         })
+        if(dirs.length == 0) dirs.push({src: 'Nenhum arquivo encontrado', url: '', isPdf: false})
         res.render('pages/repositorio', {dirs});
     }
 })
 
 app.get("/api/files/*", async(req: Request, res: Response) => {
     const src = decodeURIComponent(req.url).replace('/api/files/', '')
-    console.log(src)
     if(src.endsWith('.pdf')){
         const fileBuffer = await fs.readFileSync(`./files/${src}`)
         try {
             await pdf(fileBuffer).then((data: any) => {
-                //console.log(data.numpages)
-                //console.log(data.numrender)
-                console.log(data.info)
-                console.log(data.metadata._metadata)
-                //console.log(data.text)
-                //console.log(data.version)
                 res.status(200).json(data)
             })
         } catch (error) {
@@ -60,10 +59,11 @@ app.get("/api/files/*", async(req: Request, res: Response) => {
 })
 
 app.get('/', (req: Request, res: Response) => {
-    const dirs : ObjetctDirs[] = []
+    const dirs : ObjectDirs[] = []
     fs.readdirSync(`./files`).forEach((file: string)=>{
-        dirs.push({src: file, url: file})
+        dirs.push({src: file, url: file, isPdf: file.endsWith('.pdf')})
     })
+    if(dirs.length == 0) dirs.push({src: 'Nenhum arquivo encontrado', url: "", isPdf: false})
     res.render('pages/repositorio', {dirs});
 })
 
