@@ -48,17 +48,17 @@ app.get("/api/files/*", async(req: Request, res: Response) => {
         const fileBuffer = await fs.readFileSync(`./files/${src}`)
         try {
             await pdf(fileBuffer).then((data: any) => {
-                res.status(200).json(data)
+                return res.status(200).json(data)
             })
         } catch (error) {
-            res.status(500).json({error: error})
+            return res.status(500).json({error: error})
         }
     }else{
         res.status(500).json({error: 'Arquivo não é um PDF'})
     }
 })
 
-app.get('/', (req: Request, res: Response) => {
+app.get('/', async(req: Request, res: Response) => {
     const dirs : ObjectDirs[] = []
     fs.readdirSync(`./files`).forEach((file: string)=>{
         dirs.push({src: file, url: file, isPdf: file.endsWith('.pdf')})
@@ -67,4 +67,4 @@ app.get('/', (req: Request, res: Response) => {
     res.render('pages/repositorio', {dirs});
 })
 
-app.listen(3000, () => {console.log('Server is running on port 3000')})
+app.listen(3001, () => {console.log('Server is running on port 3000')})
