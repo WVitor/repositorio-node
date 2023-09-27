@@ -1,3 +1,4 @@
+require('dotenv').config({path: __dirname + '/../.env'})
 import { NextFunction, Request, Response } from "express";
 const express = require('express');
 const app = express();
@@ -67,4 +68,4 @@ app.get('/', async(req: Request, res: Response) => {
     res.render('pages/repositorio', {dirs});
 })
 
-app.listen(3001, () => {console.log('Server is running on port 3000')})
+app.listen(process.env.PORT, () => {console.log(`Server is running on port ${process.env.PORT}`)})
